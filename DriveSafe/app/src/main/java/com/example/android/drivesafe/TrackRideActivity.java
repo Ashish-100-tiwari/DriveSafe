@@ -10,8 +10,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 import android.media.MediaPlayer;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
+//import android.support.annotation.NonNull;
+//import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 
 import java.io.FileNotFoundException;
@@ -25,7 +25,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.pm.ActivityInfo;
-import android.support.v7.app.AppCompatActivity;
+//import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +47,10 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.Settings;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
