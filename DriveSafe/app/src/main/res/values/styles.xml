@@ -1,14 +1,14 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">#36454F</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">#36454F</item>
     </style>
 
-    <style name="DatePickerTheme" parent="Theme.AppCompat.Light.Dialog">
+    <style name="DatePickerTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="android:color">@color/blue</item>
     </style>
 

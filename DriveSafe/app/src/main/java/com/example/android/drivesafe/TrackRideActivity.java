@@ -55,6 +55,7 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Marker;
+import com.google.firebase.database.DatabaseReference;
 
 public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCallback, SensorEventListener {
 
@@ -62,8 +63,11 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
 
     private SensorManager sensorManager; //To initialize sensor
     Sensor accelerometer;
+    Sensor gyroscope;
 
     long samplingRate, startTime, endTime;
+
+    float xGvalue, yGvalue, zGvalue; //Declaring variable for accelerometer x axis value
 
     float xValue, yValue, zValue; //Declaring variable for accelerometer x axis value
 
@@ -153,7 +157,8 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         //onCreate: Registered accelerometer listener
 
         startTime = System.currentTimeMillis();
-
+        // Gyroscope
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         FILE_NAME = "rides.csv";
@@ -329,7 +334,10 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         if (!running) {
             return;
         }
-
+        // Gyroscope values
+        xGvalue =sensorEvent.values[0];
+        yGvalue =sensorEvent.values[1];
+        zGvalue =sensorEvent.values[2];
         //Calculates time period between 2 accelerometer readings(sampling rate)
         endTime = System.currentTimeMillis();
         samplingRate = endTime - startTime;
@@ -424,15 +432,14 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         if (!calibration) {
             if (zAverage < suddenAccelerationThreshold) {
                 if (!accelerationState) {
-                    log("Acceleration" + ","
-                            + df.format(xAverage) + ","
-                            + df.format(yAverage) + ","
-                            + df.format(zAverage) + ","
-                            + df.format(speed) + ","
-                            + System.currentTimeMillis() + ","
-                            + lastLatitude + ","
-                            + lastLongitude + ","
-                            + formattedDate + "\n");
+                    log("Acceleration" ,xAverage ,
+                            yAverage ,
+                            zAverage,
+                            (float) speed,
+                            System.currentTimeMillis() ,
+                            lastLatitude ,
+                            lastLongitude ,
+                            formattedDate ,xGvalue,yGvalue,zGvalue);
                 }
                 TrackRideActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
@@ -451,15 +458,14 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         if (!calibration) {
             if (zAverage > suddenBrakeThreshold) {
                 if (!brakeState) {
-                    log("Brake" + ","
-                            + df.format(xAverage) + ","
-                            + df.format(yAverage) + ","
-                            + df.format(zAverage) + ","
-                            + df.format(speed) + ","
-                            + System.currentTimeMillis() + ","
-                            + lastLatitude + ","
-                            + lastLongitude + ","
-                            + formattedDate + "\n");
+                    log("Brake",xAverage ,
+                            yAverage ,
+                            zAverage,
+                            (float) speed,
+                            System.currentTimeMillis() ,
+                            lastLatitude ,
+                            lastLongitude ,
+                            formattedDate,xGvalue,yGvalue,zGvalue );
                 }
                 TrackRideActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
@@ -478,15 +484,14 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         if (!calibration) {
             if (abs(xAverage) > sharpTurnThreshold) {
                 if (!turnState) {
-                    log("Turn" + ","
-                            + df.format(xAverage) + ","
-                            + df.format(yAverage) + ","
-                            + df.format(zAverage) + ","
-                            + df.format(speed) + ","
-                            + System.currentTimeMillis() + ","
-                            + lastLatitude + ","
-                            + lastLongitude + ","
-                            + formattedDate + "\n");
+                    log("Turn",xAverage ,
+                            yAverage ,
+                            zAverage,
+                            (float) speed,
+                            System.currentTimeMillis() ,
+                            lastLatitude ,
+                            lastLongitude ,
+                            formattedDate ,xGvalue,yGvalue,zGvalue);
                 }
                 TrackRideActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
@@ -505,15 +510,16 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         if (!calibration) {
             if (speed > speedLimit) {
                 if (!speedState) {
-                    log("Speeding" + ","
-                            + df.format(xAverage) + ","
-                            + df.format(yAverage) + ","
-                            + df.format(zAverage) + ","
-                            + df.format(speed) + ","
-                            + System.currentTimeMillis() + ","
-                            + lastLatitude + ","
-                            + lastLongitude + ","
-                            + formattedDate + "\n");
+                    log("Speeding" ,
+                            xAverage ,
+                            yAverage ,
+                            zAverage,
+                            (float) speed,
+                             System.currentTimeMillis() ,
+                             lastLatitude ,
+                             lastLongitude ,
+                             formattedDate ,xGvalue,yGvalue,zGvalue);
+
                 }
                 TrackRideActivity.this.runOnUiThread(new Runnable() {
                     public void run() {
@@ -539,17 +545,28 @@ public class TrackRideActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
-    public void log(String string) {
-        try {
-            FileOutputStream fos;
-            fos = openFileOutput(FILE_NAME, MODE_APPEND);
-            fos.write(string.getBytes());
-            fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void log(String string,float xAverage,float yAverage,float zAverage ,float speed,long mTime,
+                    double mLastLatitude,
+                    double mLastLongitude,
+                    String mDate ,float xGvalue,float yGvalue,float zGvalue) {
+//        try {
+//            FileOutputStream fos;
+//            fos = openFileOutput("hello.txt", MODE_APPEND);
+//            fos.write(string.getBytes());
+//            fos.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        connecting to the firebase
+        Dao daodriver= new Dao();
+        Driver db= new Driver(string,xAverage,yAverage,zAverage,speed,mTime,mLastLatitude,mLastLongitude,mDate,xGvalue,yGvalue,zGvalue);
+        daodriver.add(db).addOnSuccessListener(suc->{
+                Toast.makeText(this,"record is inserted",Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(er->{
+                Toast.makeText(this,"sorry! humse na ho payga!",Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override
